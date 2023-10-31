@@ -12,7 +12,12 @@ import java.util.Map;
 
 public class Serializer {
 
+    private Map<Object, Integer> objectMap;
+    private int idCounter;
+
     public Serializer() {
+        objectMap = new IdentityHashMap<>();
+        idCounter = 0;
     }
 
     public Document serialize(Object obj) {
@@ -29,6 +34,44 @@ public class Serializer {
             return;
         }
 
-        // TO DO: serialize objects
+        // TO DO: handle arrays
+
+        if (objectMap.containsKey(obj)) {
+            // TO DO: handle already serialized object
+        } else {
+            // Object not serialized yet, serialize it
+            int objectId = idCounter++;
+            objectMap.put(obj, objectId);
+
+            Element objectElement = new Element("object");
+            objectElement.setAttribute("class", obj.getClass().getName());
+            objectElement.setAttribute("id", Integer.toString(objectId));
+            parentElement.addContent(objectElement);
+
+            serializeFields(obj, objectElement);
+        }
+    }
+
+    private void serializeFields(Object obj, Element objectElement) {
+        Field[] fields = obj.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            // TO DO: Serialize fields
+        }
+    }
+
+    /** For testing
+     * 
+     * @return current count of serialized elements
+     */
+    protected int getIdCounter() {
+        return idCounter;
+    }
+
+    /** For testing
+     * 
+     * @return map of serialized elements
+     */
+    protected Map<Object, Integer> getObjectMap() {
+        return this.objectMap;
     }
 }
