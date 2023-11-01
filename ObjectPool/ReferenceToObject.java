@@ -10,7 +10,7 @@ public class ReferenceToObject {
 
     public ReferenceToObject(){}
     
-    public void setReferenceObject(Object obj) throws IllegalArgumentException {
+    public void setReferenceObject(Object obj) throws IllegalArgumentException, NullPointerException {
         Class<?> clazz = obj.getClass();
 
         if (clazz == SimpleObject.class)

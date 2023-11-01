@@ -1,8 +1,11 @@
 import ObjectPool.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.swing.SwingUtilities;
 
 public class ObjectCreator {
     private static Scanner scanner = new Scanner(System.in);
@@ -78,6 +81,14 @@ public class ObjectCreator {
     }
 
     private static ReferenceToObject createReferenceToObject(List<Object> createdObjects) {
+
+        ReferenceToObject refObj = new ReferenceToObject();
+        try {
+            refObj.setReferenceObject(getReferenceId("object ", createdObjects));
+
+        } catch (IllegalArgumentException | NullPointerException e) { }
+
+        /* 
         System.out.print("Enter a reference id of an existing object (enter 0 if none): ");
         int referenceId = scanner.nextInt();
 
@@ -94,6 +105,7 @@ public class ObjectCreator {
         } catch (IllegalArgumentException e) { }
 
         System.out.println("Invalid reference id. Object reference set as none.");
+        */
         return refObj;
     }
     
@@ -124,6 +136,15 @@ public class ObjectCreator {
 
         for (int i = 0; i < size; i++) {
 
+            try {
+                object.setObjectArrayElement(i, (SimpleObject) getReferenceId("SimpleObject for array element " + i, createdObjects));
+                continue;
+            } catch (ClassCastException e) {
+                System.out.println("This is not a valid reference id of a SimpleObject. Setting array element "+ i + " to none.");
+                object.setObjectArrayElement(i, new SimpleObject());
+            }
+            
+            /* 
             System.out.print("Enter a reference id of an existing SimpleObject for array element " + i + " (enter 0 if none): ");
             while (!scanner.hasNextInt()) {
                 System.out.print("Invalid input. Please enter a reference id of an existing SimpleObject for array element " + i + " (enter 0 if none): ");
@@ -145,9 +166,26 @@ public class ObjectCreator {
                 System.out.println("Invalid reference id. setting array element "+ i + " to none.");
             
             object.setObjectArrayElement(i, new SimpleObject());
+            */
         }
 
         return object;
+    }
+
+    private static Object getReferenceId(String idType, List<Object> createdObjects) {
+        System.out.print("Enter a reference id of an existing " + idType + " (enter 0 if none):");
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter a reference id of " + idType + " (enter 0 if none):");
+            scanner.next(); // consume the invalid input
+        }
+        int referenceId = scanner.nextInt();
+
+        if (referenceId >= 1 && referenceId <= createdObjects.size()) 
+            return createdObjects.get(referenceId - 1);
+        else if (referenceId != 0)
+            System.out.println("Invalid reference id. Setting to none.");
+
+        return null;
     }
 
     private static CollectionInstance createCollectionInstance(List<Object> createdObjects) {
@@ -155,8 +193,17 @@ public class ObjectCreator {
         int size = scanner.nextInt();
 
         CollectionInstance object = new CollectionInstance();
-
+        //int referenceId;
         for (int i = 0; i < size; i++) {
+             
+            object.addReference(getReferenceId("object for collection element " + i, createdObjects));
+            
+            /*
+            if (referenceId > 0) {
+                object.addReference(createdObjects.get(referenceId - 1));
+            } else 
+                object.addReference(new Object());
+
             System.out.print("Enter a reference id of an existing object for collection element " + i + "(enter 0 if none): ");
             while (!scanner.hasNextInt()) {
                 System.out.print("Invalid input. Please enter a reference id of an existing object for collection element " + i + " (enter 0 if none): ");
@@ -172,6 +219,7 @@ public class ObjectCreator {
             } else 
                 System.out.println("Invalid reference id. Setting collection element "+ i + " to none.");
             object.addReference(new Object());
+             */
         }
 
         return object;
@@ -182,6 +230,17 @@ public class ObjectCreator {
         for (int i = 1; i <= createdObjects.size(); i++) {
             System.out.println(i + ". " + createdObjects.get(i - 1));
         }
+        /* 
+        System.out.println("Enter id to visualize:");
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please try again.");
+            scanner.next(); // consume the invalid input
+        }
+        int referenceId = scanner.nextInt();
+        if (referenceId == -1) 
+            return;
+        SwingUtilities.invokeLater(() -> { new ObjectVisualizer(createdObjects.get(referenceId - 1)).setVisible(true);});
+        */
     }
 
 }
