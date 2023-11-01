@@ -2,11 +2,11 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import javax.swing.text.html.parser.Element;
+import org.jdom2.Element;
 
 public class TestSerializer {
     
-    private Serializer s;
+    private Serializer s = new Serializer();
 
     @Test
     public void testSerializeNullObject() {
