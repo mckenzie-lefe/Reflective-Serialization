@@ -74,10 +74,7 @@ public class ObjectCreator {
     private static SimpleObject createSimpleObject() {
         System.out.print("Enter an integer value for the simple object: ");
         int value = scanner.nextInt();
-        SimpleObject s = new SimpleObject();
-        s.i = value;
-        // TO DO: modify value setting 
-        return s;
+        return new SimpleObject(value);
     }
 
     private static ReferenceToObject createReferenceToObject(List<Object> createdObjects) {
