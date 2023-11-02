@@ -11,6 +11,10 @@ public class ObjectCreator {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+            createObjects();
+    }
+
+    public static List<Object> createObjects() {
         List<Object> createdObjects = new ArrayList<>();
 
         while (true) {
@@ -55,17 +59,17 @@ public class ObjectCreator {
                     break;
 
                 case 8:
-                    System.out.println("Exiting program.");
-                    System.exit(0);
-                    break;
+                    System.out.println("Exiting Object Creation Menu...");
+                    return createdObjects;
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
         }
+
     }
 
     private static void displayMenu() {
-        System.out.println(String.format("%-75s%n", " MENU").replace(' ', '-'));
+        System.out.println(String.format("%-60s", "OBJECT-CREATION-MENU").replace(' ', '-'));
         System.out.println("(1) Create Simple Object");
         System.out.println("(2) Create Object with Reference to Simple Object");
         System.out.println("(3) Create Object with CircularReference");
@@ -82,6 +86,7 @@ public class ObjectCreator {
             System.out.print("Invalid input. Enter a number: ");
             scanner.next(); // consume the invalid input
         }
+        System.out.println();
         return scanner.nextInt();
     }
     

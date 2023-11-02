@@ -9,12 +9,7 @@ import java.lang.reflect.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import java.util.*;
 
 public class Serializer {
     private Map<Object, Integer> objectMap;
@@ -29,13 +24,19 @@ public class Serializer {
         Element rootElement = new Element("serialized");
         Document document = new Document(rootElement);
 
-        serializeObject(obj, rootElement);
+        if(Collection.class.isAssignableFrom(obj.getClass())) {
+            Iterator<Object> iter = ((Iterable) obj).iterator();
+            while(iter.hasNext()) {
+                serializeObject(iter.next(), rootElement);
+            }
+        } else
+            serializeObject(obj, rootElement);
   
         return document;
     }
 
     public void pp(String m) {
-        System.out.println(m);
+        //System.out.println(m);
     }
 
     protected void serializeObject(Object obj, Element parentElement) {
@@ -87,7 +88,7 @@ public class Serializer {
     }
 
     private void serializeCollection(Object obj) {
-        if (obj.getClass().isInstance(Collection.class) ){
+        if (Collection.class.isAssignableFrom(obj.getClass())){
             // TO DO 
         }
     }
@@ -150,8 +151,13 @@ public class Serializer {
             exampleObject.setObjectArrayElement(2, new SimpleObject(6));
 
         } catch (Exception e) {}
-       
-        Document document = serializer.serialize(exampleObject);
+
+        List<Object> lis = new ArrayList<>();
+        lis.add(so);
+        lis.add(cRef2);
+        System.out.println("HI");
+        Document document = serializer.serialize(lis);
+
 
         // Print the XML document
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
