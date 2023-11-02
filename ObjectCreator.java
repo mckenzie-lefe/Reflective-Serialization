@@ -22,26 +22,39 @@ public class ObjectCreator {
                     createdObjects.add(createSimpleObject());
                     System.out.println("Created SimpleObject with reference id: "+ createdObjects.size());
                     break;
+
                 case 2:
-                    createdObjects.add(createReferenceToObject(createdObjects));
-                    System.out.println("Created ReferenceToObject with reference id: "+ createdObjects.size());
+                    createdObjects.add(createReferenceSimpleObject(createdObjects));
+                    System.out.println("Created ReferenceSimpleObject with reference id: "+ createdObjects.size());
                     break;
+
                 case 3:
+                    for (CircularReference cRef : createCircularReference(createdObjects)) {
+                        createdObjects.add(cRef);
+                        System.out.println("Created CircularReference with reference id: "+ createdObjects.size());
+                    }
+                    break;
+
+                case 4:
                     createdObjects.add(createArrayOfPrimitives());
                     System.out.println("Created ArrayOfPrimitives with reference id: "+ createdObjects.size());
                     break;
-                case 4:
+
+                case 5:
                     createdObjects.add(createArrayOfObjects(createdObjects));
                     System.out.println("Created ArrayOfObjects with reference id: "+ createdObjects.size());
                     break;
-                case 5:
+
+                case 6:
                     createdObjects.add(createCollectionInstance(createdObjects));
                     System.out.println("Created CollectionInstance with reference id: " + createdObjects.size());
                     break;
-                case 6:
+
+                case 7:
                     displayCreatedObjects(createdObjects);
                     break;
-                case 7:
+
+                case 8:
                     System.out.println("Exiting program.");
                     System.exit(0);
                     break;
@@ -54,12 +67,13 @@ public class ObjectCreator {
     private static void displayMenu() {
         System.out.println(String.format("%-75s%n", " MENU").replace(' ', '-'));
         System.out.println("(1) Create Simple Object");
-        System.out.println("(2) Create Object with References");
-        System.out.println("(3) Create Object with Primitive Array");
-        System.out.println("(4) Create Object with Object Array");
-        System.out.println("(5) Create Object with Collection");
-        System.out.println("(6) Display Created Objects");
-        System.out.println("(7) Exit");
+        System.out.println("(2) Create Object with Reference to Simple Object");
+        System.out.println("(3) Create Object with CircularReference");
+        System.out.println("(4) Create Object with Primitive Array");
+        System.out.println("(5) Create Object with Object Array");
+        System.out.println("(6) Create Object with Collection");
+        System.out.println("(7) Display Created Objects");
+        System.out.println("(8) Exit");
         System.out.print("Enter your choice: ");
     }
 
@@ -71,39 +85,72 @@ public class ObjectCreator {
         return scanner.nextInt();
     }
     
+    private static Object getReferenceId(String idType, List<Object> createdObjects) {
+        System.out.print("Enter a reference id of an existing " + idType + " (enter 0 if none):");
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter a reference id of " + idType + " (enter 0 if none):");
+            scanner.next(); // consume the invalid input
+        }
+        int referenceId = scanner.nextInt();
+
+        if (referenceId >= 1 && referenceId <= createdObjects.size()) 
+            return createdObjects.get(referenceId - 1);
+        else if (referenceId != 0)
+            System.out.println("Invalid reference id. Setting to none.");
+
+        return null;
+    }
+
     private static SimpleObject createSimpleObject() {
         System.out.print("Enter an integer value for the simple object: ");
         int value = scanner.nextInt();
         return new SimpleObject(value);
     }
 
-    private static ReferenceToObject createReferenceToObject(List<Object> createdObjects) {
+    private static CircularReference[] createCircularReference(List<Object> createdObjects) {
+        System.out.println("(1) Create CirularReference object with circularRef field set to null");
+        System.out.println("(2) Set the circularRef field of existing CirularReference Object");
+        System.out.println("(3) Create two new CirularReference Objects and set their circularRef fields such that they reference each other");
+        int choice = getUserChoice();
 
-        ReferenceToObject refObj = new ReferenceToObject();
-        try {
-            refObj.setReferenceObject(getReferenceId("object ", createdObjects));
+        switch (choice) {
+            case 1:
+                return new CircularReference[] { new CircularReference() };
 
-        } catch (IllegalArgumentException | NullPointerException e) { }
+            case 2:
+                try {
+                    return new CircularReference[] { 
+                        new CircularReference(
+                            (CircularReference) getReferenceId(
+                                "CircularReference object ", createdObjects))};
 
-        /* 
-        System.out.print("Enter a reference id of an existing object (enter 0 if none): ");
-        int referenceId = scanner.nextInt();
-
-        ReferenceToObject refObj = new ReferenceToObject();
-
-        try {
-            if (referenceId >= 0 && referenceId <= createdObjects.size()) {
-                
-                if(referenceId != 0) {
-                    refObj.setReferenceObject(createdObjects.get(referenceId - 1));
+                } catch (ClassCastException e) {
+                    System.out.println("Invalid CircularReference object " +
+                        "reference id. Setting circularRef field to none.");
+                    return new CircularReference[] { new CircularReference()};
                 }
-                return refObj;
-            } 
-        } catch (IllegalArgumentException e) { }
 
-        System.out.println("Invalid reference id. Object reference set as none.");
-        */
-        return refObj;
+            case 3:
+                CircularReference cRef1 = new CircularReference();
+                CircularReference cRef2 = new CircularReference(cRef1);
+                cRef1.setCircularReference(cRef2);
+
+                return new CircularReference[] { cRef1, cRef2 };
+
+            default:
+                System.out.println("Invalid choice. Returning to Main Menu");
+                return new CircularReference[] {};
+        }
+    }
+
+    private static ReferenceSimpleObject createReferenceSimpleObject(List<Object> createdObjects) {
+        try {
+            return new ReferenceSimpleObject((SimpleObject) getReferenceId("SimpleObject ", createdObjects));
+
+        } catch (ClassCastException e) {
+            System.out.println("Invalid SimpleObject reference id. Setting simpleObj field to none.");
+            return new ReferenceSimpleObject();
+        }
     }
     
     private static ArrayOfPrimitives createArrayOfPrimitives() {
@@ -138,51 +185,11 @@ public class ObjectCreator {
                 continue;
             } catch (ClassCastException e) {
                 System.out.println("This is not a valid reference id of a SimpleObject. Setting array element "+ i + " to none.");
-                object.setObjectArrayElement(i, new SimpleObject());
+                object.setObjectArrayElement(i, new SimpleObject(3));
             }
-            
-            /* 
-            System.out.print("Enter a reference id of an existing SimpleObject for array element " + i + " (enter 0 if none): ");
-            while (!scanner.hasNextInt()) {
-                System.out.print("Invalid input. Please enter a reference id of an existing SimpleObject for array element " + i + " (enter 0 if none): ");
-                scanner.next(); // consume the invalid input
-            }
-            int referenceId = scanner.nextInt();
-
-            if (referenceId >= 0 && referenceId <= createdObjects.size()) {
-                if (referenceId != 0) {
-                    try {
-                        object.setObjectArrayElement(i, (SimpleObject) createdObjects.get(referenceId - 1));
-                        continue;
-                    } catch (ClassCastException e) {
-                        System.out.println("This is not the reference id of a SimpleObject. Setting array element "+ i + " to none.");
-                    }
-                }
-                
-            } else 
-                System.out.println("Invalid reference id. setting array element "+ i + " to none.");
-            
-            object.setObjectArrayElement(i, new SimpleObject());
-            */
         }
 
         return object;
-    }
-
-    private static Object getReferenceId(String idType, List<Object> createdObjects) {
-        System.out.print("Enter a reference id of an existing " + idType + " (enter 0 if none):");
-        while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. Please enter a reference id of " + idType + " (enter 0 if none):");
-            scanner.next(); // consume the invalid input
-        }
-        int referenceId = scanner.nextInt();
-
-        if (referenceId >= 1 && referenceId <= createdObjects.size()) 
-            return createdObjects.get(referenceId - 1);
-        else if (referenceId != 0)
-            System.out.println("Invalid reference id. Setting to none.");
-
-        return null;
     }
 
     private static CollectionInstance createCollectionInstance(List<Object> createdObjects) {
