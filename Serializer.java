@@ -39,8 +39,6 @@ public class Serializer {
     }
 
     protected void serializeObject(Object obj, Element parentElement) {
-        pp("serializing; "+obj.toString());
-
         if (obj == null) 
             return;
  
@@ -52,53 +50,52 @@ public class Serializer {
 
         objectElement.setAttribute("class", obj.getClass().getName());
         objectElement.setAttribute("id", Integer.toString(objectId));
-       
         parentElement.addContent(objectElement);
+
         if (clazz.isArray()) {
             pp("is array " + clazz.getName());
+
+            boolean primitive = clazz.getComponentType().isPrimitive();
             int len = Array.getLength(obj);
+            
             objectElement.setAttribute("length", Integer.toString(len));
 
-            //TO DO: clean up -> check each elements type of jus component type??
-            if (clazz.getComponentType().isPrimitive()){
-                for (int i = 0; i < len; i++) {
-                    serializeValue(objectElement, Array.get(obj, i).toString());
-                }
-            } else {
-                for (int i = 0; i < len; i++) {
-                    serializeReference(Array.get(obj, i), parentElement, objectElement);
-                }
+            for (int i = 0; i < len; i++) {
+                serializeObjectContent(Array.get(obj, i), parentElement, objectElement, primitive);
             }
             
-        } else {
-            serializeFields(obj, parentElement, objectElement);
-        }     
+        } else 
+            serializeFields(obj, parentElement, objectElement);   
     }
 
-    private void serialzeCollection(Object obj) {
-        if (obj.getClass().isInstance(Collection.class) ){
-
-        }
-    }
-
-    private void serializeReference(Object obj, Element parentElement, Element childElement) {
-        if (obj == null) {  // TO DO: handle nulls
-            System.out.println("reference object is null!!!");
-            return;
+    private void serializeObjectContent(Object obj, Element parentElement, Element objectElement, boolean primitive) {
+        if (obj == null) {
+            System.out.println("Object is null!!!");
+            return; 
         }
 
-        if (!objectMap.containsKey(obj)) 
-            serializeObject(obj, parentElement);
+        // serialize value
+        if (primitive)                          
+            addChildElement(objectElement, "value", obj.toString());
+        // serialize reference
+        else  {     
+            if (!objectMap.containsKey(obj)) 
+                serializeObject(obj, parentElement);
         
-        Element refElement = new Element("reference");
-        refElement.setText(objectMap.get(obj).toString());
-        childElement.addContent(refElement);
+            addChildElement(objectElement, "reference", objectMap.get(obj).toString());
+        } 
     }
 
-    private void serializeValue(Element parentElement, String value) {
-        Element valueElement = new Element("value");
-        valueElement.setText(value);
-        parentElement.addContent(valueElement);
+    private void serializeCollection(Object obj) {
+        if (obj.getClass().isInstance(Collection.class) ){
+            // TO DO 
+        }
+    }
+
+    private void addChildElement(Element parentElement, String name, String value) {
+        Element childElement = new Element(name);
+        childElement.setText(value);
+        parentElement.addContent(childElement);
     }
 
     private void serializeFields(Object obj, Element parentElement, Element objectElement) {
@@ -107,19 +104,14 @@ public class Serializer {
             Class<?> fType = field.getType();
             Element fieldElement = new Element("field");
             pp("Field: " + field.getName() + " Type: " + fType);
+
             fieldElement.setAttribute("name", field.getName());
             fieldElement.setAttribute("declaringclass", field.getDeclaringClass().getName());
             pp("GtYPE: " + field.getGenericType());
 
             try {
-                field.setAccessible(true); 
-                Object fieldObj = field.get(obj);
-                
-
-                if (fType.isPrimitive()) 
-                    serializeValue(fieldElement, fieldObj.toString());
-                else 
-                    serializeReference(fieldObj, parentElement, fieldElement);
+                field.setAccessible(true);  
+                serializeObjectContent(field.get(obj), parentElement, fieldElement, fType.isPrimitive());
 
             } catch ( IllegalAccessException | InaccessibleObjectException e) { 
                 pp("WARNING: Unable to make " +field.getName()+ " accessiable.");
@@ -159,7 +151,7 @@ public class Serializer {
 
         } catch (Exception e) {}
        
-        Document document = serializer.serialize(colInst);
+        Document document = serializer.serialize(exampleObject);
 
         // Print the XML document
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());

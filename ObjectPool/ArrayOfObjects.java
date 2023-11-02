@@ -4,6 +4,8 @@ public class ArrayOfObjects{
     
     private SimpleObject[] simpleObjs;
 
+    public ArrayOfObjects() { }
+
     public ArrayOfObjects(int size) {
         simpleObjs = new SimpleObject[size];
     }
