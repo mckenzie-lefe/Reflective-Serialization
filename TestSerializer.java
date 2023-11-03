@@ -1,11 +1,7 @@
 
 import org.junit.Test;
 
-import ObjectPool.ArrayOfObjects;
-import ObjectPool.ArrayOfPrimitives;
-import ObjectPool.CircularReference;
-import ObjectPool.CollectionInstance;
-import ObjectPool.SimpleObject;
+import ObjectPool.*;
 
 import static org.junit.Assert.*;
 import java.util.Arrays;
