@@ -1,5 +1,4 @@
 # Test Files
-Asst2TestDriver.java
 ClassA.java
 ClassB.java
 ClassC.java
@@ -8,6 +7,7 @@ InterfaceA.java
 InterfaceB.java
 
 ObjectVisualizer.java
+*.xml
 
 # Compiled class file
 *.class
