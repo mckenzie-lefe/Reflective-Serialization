@@ -8,7 +8,7 @@ public class ObjectCreator {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-            createObjects();
+        createObjects();
     }
 
     public static List<Object> createObjects() {
@@ -55,14 +55,13 @@ public class ObjectCreator {
                     displayCreatedObjects(createdObjects);
                     break;
 
-                case 8:
-                    System.out.println("Exiting Object Creation Menu...");
+                case 8: //Exit menu
                     return createdObjects;
+
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
         }
-
     }
 
     private static void displayMenu() {
@@ -158,7 +157,6 @@ public class ObjectCreator {
     private static ArrayOfPrimitives createArrayOfPrimitives() {
         System.out.print("Enter the size of the primitive integer array: ");
         int size = scanner.nextInt();
-
         int[] array = new int[size];
 
         for (int i = 0; i < size; i++) {
@@ -177,57 +175,29 @@ public class ObjectCreator {
     private static ArrayOfObjects createArrayOfObjects(List<Object> createdObjects) {
         System.out.print("Enter the size of the object array: ");
         int size = scanner.nextInt();
-
         ArrayOfObjects object = new ArrayOfObjects(size);
 
         for (int i = 0; i < size; i++) {
-
             try {
                 object.setObjectArrayElement(i, (SimpleObject) getReferenceId("SimpleObject for array element " + i, createdObjects));
                 continue;
+
             } catch (ClassCastException e) {
                 System.out.println("This is not a valid reference id of a SimpleObject. Setting array element "+ i + " to none.");
                 object.setObjectArrayElement(i, new SimpleObject(3));
             }
         }
-
         return object;
     }
 
     private static CollectionInstance createCollectionInstance(List<Object> createdObjects) {
         System.out.print("Enter the size of the collection: ");
         int size = scanner.nextInt();
-
         CollectionInstance object = new CollectionInstance();
-        //int referenceId;
-        for (int i = 0; i < size; i++) {
-             
+
+        for (int i = 0; i < size; i++) {     
             object.addReference(getReferenceId("object for collection element " + i, createdObjects));
-            
-            /*
-            if (referenceId > 0) {
-                object.addReference(createdObjects.get(referenceId - 1));
-            } else 
-                object.addReference(new Object());
-
-            System.out.print("Enter a reference id of an existing object for collection element " + i + "(enter 0 if none): ");
-            while (!scanner.hasNextInt()) {
-                System.out.print("Invalid input. Please enter a reference id of an existing object for collection element " + i + " (enter 0 if none): ");
-                scanner.next(); // consume the invalid input
-            }
-            int referenceId = scanner.nextInt();
-
-            if (referenceId >= 0 && referenceId <= createdObjects.size()) {
-                if (referenceId != 0) {
-                    object.addReference(createdObjects.get(referenceId - 1));
-                    continue;
-                }
-            } else 
-                System.out.println("Invalid reference id. Setting collection element "+ i + " to none.");
-            object.addReference(new Object());
-             */
         }
-
         return object;
     }
 
@@ -236,17 +206,5 @@ public class ObjectCreator {
         for (int i = 1; i <= createdObjects.size(); i++) {
             System.out.println(i + ". " + createdObjects.get(i - 1));
         }
-        /* 
-        System.out.println("Enter id to visualize:");
-        while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. Please try again.");
-            scanner.next(); // consume the invalid input
-        }
-        int referenceId = scanner.nextInt();
-        if (referenceId == -1) 
-            return;
-        SwingUtilities.invokeLater(() -> { new ObjectVisualizer(createdObjects.get(referenceId - 1)).setVisible(true);});
-        */
     }
-
 }

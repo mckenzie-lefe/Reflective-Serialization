@@ -10,6 +10,35 @@ import org.jdom2.output.XMLOutputter;
 
 public class Sender {   
     private static Scanner scanner = new Scanner(System.in);
+       
+    public static void main(String args[]) {
+        Map<String, String> settings = new HashMap<>();
+        settings.put("XMLFilePath", "serialized.xml");
+        settings.put("hostname", "localhost");
+        settings.put("port", "4000");
+
+        while(true) {
+            displayMenu(settings);
+            int choice = getUserChoice();
+
+            switch (choice) {
+                case 1:
+                    changeSettings(settings);
+                    break;
+
+                case 2:
+                    sendObject(
+                        serialzeObjects(getSendObjects(), settings.get("XMLFilePath")), 
+                        settings.get("hostname"), 
+                        Integer.parseInt(settings.get("port"))
+                    );
+                    break;
+            
+                default:
+                   return;
+            }
+        }
+    }
 
     private static Map<String, String> changeSettings(Map<String, String> settings) {
         System.out.print("Enter XML file path for JDOM document: ");
@@ -66,34 +95,26 @@ public class Sender {
         System.out.println();
         return scanner.nextInt();
     }
-
-    public static void main(String args[]) {
-        Map<String, String> settings = new HashMap<>();
-        settings.put("XMLFilePath", "serialized.xml");
-        settings.put("hostname", "localhost");
-        settings.put("port", "4000");
-
-        while(true) {
-            displayMenu(settings);
-            int choice = getUserChoice();
-
-            switch (choice) {
-                case 1:
-                    changeSettings(settings);
-                    break;
-
-                case 2:
-                    sendObject(
-                        serialzeObjects(ObjectCreator.createObjects(), settings.get("XMLFilePath")), 
-                        settings.get("hostname"), 
-                        Integer.parseInt(settings.get("port"))
-                    );
-                    break;
-            
-                default:
-                   return;
-            }
+    
+    private static List<Object> getSendObjects() {
+        List<Object> objects = ObjectCreator.createObjects();
+        System.out.println("Select reference Id of object(s) to send or -1 to finish selection:");
+        for (int i = 1; i <= objects.size(); i++) {
+            System.out.println("\t" +i + ". " + objects.get(i - 1));
         }
+
+        List<Object> sendObjects = new ArrayList<>();
+        while (true) {
+            int id = getUserChoice();
+            if (id == -1)
+                break;
+
+            if( id > objects.size() || id <= 0) 
+                System.out.println("Invalid reference Id");
+            else 
+                sendObjects.add(objects.get(id - 1));
+        }
+        return sendObjects;
     }
 
     private static Document serialzeObjects(List<Object> objects, String file) {

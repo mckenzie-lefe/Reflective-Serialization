@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 
 public class Serializer {
     private Map<Object, Integer> objectMap;
@@ -31,6 +30,7 @@ public class Serializer {
                 while(iter.hasNext()) {
                     serializeObject((Object) iter.next(), rootElement);
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -55,8 +55,6 @@ public class Serializer {
         parentElement.addContent(objectElement);
 
         if (clazz.isArray()) {
-            System.out.println("is array " + clazz.getName());
-
             boolean primitive = clazz.getComponentType().isPrimitive();
             int len = Array.getLength(obj);
             
@@ -71,20 +69,16 @@ public class Serializer {
 
         } else 
             serializeFields(obj, parentElement, objectElement);   
-        
     }
 
     private void serializeObjectContent(Object obj, Element parentElement, Element objectElement, boolean primitive) {
-        if (obj == null) {
-            System.out.println("Object is null!!!");
+        if (obj == null) 
             return; 
-        }
 
-        // serialize value
-        if (primitive)                          
+        if (primitive)              // serialize value                    
             addChildElement(objectElement, "value", obj.toString());
-        // serialize reference
-        else  {     
+
+        else {                      // serialize reference
             if (!objectMap.containsKey(obj)) 
                 serializeObject(obj, parentElement);
         
@@ -95,7 +89,6 @@ public class Serializer {
     private void serializeCollection(Object obj, Element parentElement, Element objectElement) {
         try {
             Iterator<?> iter = ((Iterable<?>) obj).iterator();
-            System.out.println(iter);
             int size = 0;
             
             while(iter.hasNext()) {
@@ -118,7 +111,6 @@ public class Serializer {
     }
 
     private void serializeFields(Object obj, Element parentElement, Element objectElement) {
-
         for (Field field : obj.getClass().getDeclaredFields()) {
             Class<?> fType = field.getType();
             Element fieldElement = new Element("field");
@@ -186,5 +178,4 @@ public class Serializer {
             e.printStackTrace();
         }
     }
-
 }
