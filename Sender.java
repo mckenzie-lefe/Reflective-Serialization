@@ -27,11 +27,13 @@ public class Sender {
                     break;
 
                 case 2:
-                    sendObject(
-                        serialzeObjects(getSendObjects(), settings.get("XMLFilePath")), 
-                        settings.get("hostname"), 
-                        Integer.parseInt(settings.get("port"))
-                    );
+                    for(Object obj : getSendObjects()) {
+                        sendObject(
+                            serialzeObjects(obj, settings.get("XMLFilePath")), 
+                            settings.get("hostname"), 
+                            Integer.parseInt(settings.get("port"))
+                        );
+                    }
                     break;
             
                 default:
@@ -117,7 +119,7 @@ public class Sender {
         return sendObjects;
     }
 
-    private static Document serialzeObjects(List<Object> objects, String file) {
+    private static Document serialzeObjects(Object objects, String file) {
         System.out.println("Serializing objects...");
         Document doc = new Serializer().serialize(objects);
 
