@@ -8,6 +8,7 @@ InterfaceB.java
 
 ObjectVisualizer.java
 *.xml
+settings.json
 
 # Compiled class file
 *.class

@@ -1,7 +1,6 @@
 import ObjectPool.*;
 
 import org.jdom2.*;
-import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
@@ -10,6 +9,8 @@ import java.lang.reflect.*;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class Serializer {
     private Map<Object, Integer> objectMap;
@@ -25,28 +26,28 @@ public class Serializer {
         Document document = new Document(rootElement);
 
         if(Collection.class.isAssignableFrom(obj.getClass())) {
-            Iterator<Object> iter = ((Iterable) obj).iterator();
-            while(iter.hasNext()) {
-                serializeObject(iter.next(), rootElement);
+            try {
+                Iterator<?> iter = ((Iterable<?>) obj).iterator();
+                while(iter.hasNext()) {
+                    serializeObject((Object) iter.next(), rootElement);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            
         } else
             serializeObject(obj, rootElement);
   
         return document;
     }
 
-    public void pp(String m) {
-        //System.out.println(m);
-    }
-
     protected void serializeObject(Object obj, Element parentElement) {
-        if (obj == null) 
+        if (obj == null || objectMap.containsKey(obj)) 
             return;
- 
+
         Class<?> clazz = obj.getClass();
         int objectId = idCounter++;
         Element objectElement = new Element("object");
-        
         objectMap.put(obj, objectId);
 
         objectElement.setAttribute("class", obj.getClass().getName());
@@ -54,7 +55,7 @@ public class Serializer {
         parentElement.addContent(objectElement);
 
         if (clazz.isArray()) {
-            pp("is array " + clazz.getName());
+            System.out.println("is array " + clazz.getName());
 
             boolean primitive = clazz.getComponentType().isPrimitive();
             int len = Array.getLength(obj);
@@ -63,10 +64,15 @@ public class Serializer {
 
             for (int i = 0; i < len; i++) {
                 serializeObjectContent(Array.get(obj, i), parentElement, objectElement, primitive);
-            }
+            }  
             
+        } else if(Collection.class.isAssignableFrom(obj.getClass())) {
+            serializeCollection(obj, parentElement);   
+            //parentElement.removeContent(objectElement);
+
         } else 
             serializeFields(obj, parentElement, objectElement);   
+        
     }
 
     private void serializeObjectContent(Object obj, Element parentElement, Element objectElement, boolean primitive) {
@@ -87,9 +93,19 @@ public class Serializer {
         } 
     }
 
-    private void serializeCollection(Object obj) {
-        if (Collection.class.isAssignableFrom(obj.getClass())){
-            // TO DO 
+    private void serializeCollection(Object obj, Element parentElement) {
+        if(Collection.class.isAssignableFrom(obj.getClass())) {
+            try {
+                Iterator<?> iter = ((Iterable<?>) obj).iterator();
+                System.out.println(iter);
+
+                while(iter.hasNext()) {
+                    serializeObject((Object) iter.next(), parentElement);    
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -104,18 +120,16 @@ public class Serializer {
         for (Field field : obj.getClass().getDeclaredFields()) {
             Class<?> fType = field.getType();
             Element fieldElement = new Element("field");
-            pp("Field: " + field.getName() + " Type: " + fType);
 
             fieldElement.setAttribute("name", field.getName());
             fieldElement.setAttribute("declaringclass", field.getDeclaringClass().getName());
-            pp("GtYPE: " + field.getGenericType());
 
             try {
                 field.setAccessible(true);  
                 serializeObjectContent(field.get(obj), parentElement, fieldElement, fType.isPrimitive());
 
             } catch ( IllegalAccessException | InaccessibleObjectException e) { 
-                pp("WARNING: Unable to make " +field.getName()+ " accessiable.");
+                System.out.println("WARNING: Unable to make " +field.getName()+ " accessiable.");
             }
 
             objectElement.addContent(fieldElement);

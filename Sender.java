@@ -12,7 +12,6 @@ public class Sender {
     private static Scanner scanner = new Scanner(System.in);
 
     private static Map<String, String> changeSettings(Map<String, String> settings) {
-
         System.out.print("Enter XML file path for JDOM document: ");
         String f = scanner.next();
 
@@ -45,10 +44,9 @@ public class Sender {
 
     private static void displayMenu(Map<String, String> settings) {
         System.out.println( 
-            "\nThe Sender program:\n" +//
-            " - create object(s) using Object Creation Menu," + // 
-            " - serialize these objects into a JDOM document, and\n" + // 
-            " - send this document to the Receiver program over network\n\n" + //
+            "\nThe Sender program creates object(s) using Object Creation " + //
+            "Menu, serialize these\nobjects into a JDOM document, and send" + //
+            " this document to the Receiver program\nover a network.\n\n" + //
             String.format("%-80s%n", "MAIN-MENU").replace(' ', '-') + //
             "(1) Change Settings: \n\t" + //
                 "Recevier Program Server:\n\t\t" + //
@@ -69,15 +67,13 @@ public class Sender {
         return scanner.nextInt();
     }
 
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         Map<String, String> settings = new HashMap<>();
         settings.put("XMLFilePath", "serialized.xml");
         settings.put("hostname", "localhost");
         settings.put("port", "4000");
 
-        while(true)
-        {
+        while(true) {
             displayMenu(settings);
             int choice = getUserChoice();
 
@@ -101,8 +97,9 @@ public class Sender {
     }
 
     private static Document serialzeObjects(List<Object> objects, String file) {
-        System.out.println("Serializing objects... (to stdout and in file " +file+ ")");
+        System.out.println("Serializing objects...");
         Document doc = new Serializer().serialize(objects);
+
         try {
             XMLOutputter outputXML = new XMLOutputter();
             outputXML.setFormat(Format.getPrettyFormat());
@@ -119,21 +116,19 @@ public class Sender {
         return doc;
     }
     
-    private static void sendObject(Document obj, String hostname, int port)
-    {
-        System.out.println("Sending serialized objects to " + hostname + ":" + port);
-        try
-        {
-            System.out.println("Connecting...");
-            Socket socket = new Socket(InetAddress.getByName(hostname), port);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println("Sending ... ");
+    private static void sendObject(Document obj, String hostname, int port) {
+        try {
+            System.out.println("Connecting to Reciever program...");
+            Socket sock = new Socket(InetAddress.getByName(hostname), port);
+            ObjectOutputStream out = new ObjectOutputStream(sock.getOutputStream());
+            System.out.println("Sending serialized objects... ");
 
             out.writeObject(obj);
             out.flush();
             System.out.println("Sent.");  
 
-            socket.close();
+            sock.close();
+            System.out.println("Disconnected.");
 
         } catch (ConnectException e) {
             System.out.println("WARNING: Unable to make socket connection.");

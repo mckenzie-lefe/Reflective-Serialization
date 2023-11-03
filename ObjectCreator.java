@@ -1,11 +1,8 @@
 import ObjectPool.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.swing.SwingUtilities;
 
 public class ObjectCreator {
     private static Scanner scanner = new Scanner(System.in);
@@ -69,7 +66,7 @@ public class ObjectCreator {
     }
 
     private static void displayMenu() {
-        System.out.println(String.format("%-60s", "OBJECT-CREATION-MENU").replace(' ', '-'));
+        System.out.println(String.format("%-80s", "OBJECT-CREATION-MENU").replace(' ', '-'));
         System.out.println("(1) Create Simple Object");
         System.out.println("(2) Create Object with Reference to Simple Object");
         System.out.println("(3) Create Object with CircularReference");
