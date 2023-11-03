@@ -67,8 +67,7 @@ public class Serializer {
             }  
             
         } else if(Collection.class.isAssignableFrom(obj.getClass())) {
-            serializeCollection(obj, parentElement);   
-            //parentElement.removeContent(objectElement);
+            serializeCollection(obj, parentElement, objectElement);   
 
         } else 
             serializeFields(obj, parentElement, objectElement);   
@@ -93,19 +92,22 @@ public class Serializer {
         } 
     }
 
-    private void serializeCollection(Object obj, Element parentElement) {
-        if(Collection.class.isAssignableFrom(obj.getClass())) {
-            try {
-                Iterator<?> iter = ((Iterable<?>) obj).iterator();
-                System.out.println(iter);
-
-                while(iter.hasNext()) {
-                    serializeObject((Object) iter.next(), parentElement);    
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void serializeCollection(Object obj, Element parentElement, Element objectElement) {
+        try {
+            Iterator<?> iter = ((Iterable<?>) obj).iterator();
+            System.out.println(iter);
+            int size = 0;
+            
+            while(iter.hasNext()) {
+                size++;
+                Object elObj = (Object) iter.next();
+                serializeObject(elObj, parentElement);   
+                serializeObjectContent(elObj, parentElement, objectElement, elObj.getClass().isPrimitive()); 
             }
+            objectElement.setAttribute("length", Integer.toString(size));
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
