@@ -95,7 +95,10 @@ public class Serializer {
                 size++;
                 Object elObj = (Object) iter.next();
                 serializeObject(elObj, parentElement);   
-                serializeObjectContent(elObj, parentElement, objectElement, elObj.getClass().isPrimitive()); 
+                if (elObj == null) 
+                    addChildElement(objectElement, "reference", "null");
+                else 
+                    serializeObjectContent(elObj, parentElement, objectElement, elObj.getClass().isPrimitive()); 
             }
             objectElement.setAttribute("length", Integer.toString(size));
 
