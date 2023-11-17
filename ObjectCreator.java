@@ -65,15 +65,15 @@ public class ObjectCreator {
     }
 
     private static void displayMenu() {
-        System.out.println(String.format("%-80s", "OBJECT-CREATION-MENU").replace(' ', '-'));
-        System.out.println("(1) Create Simple Object");
-        System.out.println("(2) Create Object with Reference to Simple Object");
-        System.out.println("(3) Create Object with CircularReference");
-        System.out.println("(4) Create Object with Primitive Array");
-        System.out.println("(5) Create Object with Object Array");
-        System.out.println("(6) Create Object with Collection");
-        System.out.println("(7) Display Created Objects");
-        System.out.println("(8) Exit");
+        System.out.println(String.format("%n%-80s", "OBJECT-CREATION-MENU").replace(' ', '-'));
+        System.out.println("(1) Create Simple Object\n");
+        System.out.println("(2) Create Object with Reference to Simple Object\n");
+        System.out.println("(3) Create Object with CircularReferencey\n");
+        System.out.println("(4) Create Object with Primitive Array\n");
+        System.out.println("(5) Create Object with Object Array\n");
+        System.out.println("(6) Create Object with Collection\n");
+        System.out.println("(7) Display Created Objects\n");
+        System.out.println("(8) Exit\n");
         System.out.print("Enter your choice: ");
     }
 
@@ -87,9 +87,9 @@ public class ObjectCreator {
     }
     
     private static Object getReferenceId(String idType, List<Object> createdObjects) {
-        System.out.print("Enter a reference id of an existing " + idType + " (enter 0 if none):");
+        System.out.print("Enter a reference id of an existing " + idType + " (enter 0 if none): ");
         while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. Please enter a reference id of " + idType + " (enter 0 if none):");
+            System.out.print("Invalid input. Please enter a reference id of " + idType + " (enter 0 if none): ");
             scanner.next(); // consume the invalid input
         }
         int referenceId = scanner.nextInt();
@@ -111,7 +111,7 @@ public class ObjectCreator {
     private static CircularReference[] createCircularReference(List<Object> createdObjects) {
         System.out.println("(1) Create CirularReference object with circularRef field set to null");
         System.out.println("(2) Set the circularRef field of existing CirularReference Object");
-        System.out.println("(3) Create two new CirularReference Objects and set their circularRef fields such that they reference each other");
+        System.out.println("(3) Create two new CirularReference Objects and set their circularRef fields\nsuch that they reference each other");
         int choice = getUserChoice();
 
         switch (choice) {

@@ -23,10 +23,6 @@ public class Sender {
 
             switch (choice) {
                 case 1:
-                    changeSettings(settings);
-                    break;
-
-                case 2:
                     for(Object obj : getSendObjects()) {
                         sendObject(
                             serialzeObjects(obj, settings.get("XMLFilePath")), 
@@ -35,11 +31,31 @@ public class Sender {
                         );
                     }
                     break;
-            
+
+                case 2:
+                    changeSettings(settings);
+                    break;
+
                 default:
                    return;
             }
         }
+    }
+
+    private static void displayMenu(Map<String, String> settings) {
+        System.out.println( 
+            String.format("%n%-80s%n", "").replace(' ', '-') + //
+            "The Sender program creates object(s) using Object Creation " + //
+            "Menu, serialize these\nobjects into a JDOM document, and send" + //
+            " this document to the Receiver program\nover a network.\n\n" + //
+            String.format("%-80s%n", "MAIN-MENU").replace(' ', '-') + //
+            "(1) Start\n\n"+ //
+            "(2) Change Settings: \n\t" + //
+                "Recevier Program Server:\n\t\t" + //
+                    "hostname: " + settings.get("hostname") + "\n\t\t" + //
+                    "port: " + settings.get("port") + "\n\t" + //
+                "XML Filepath: " + settings.get("XMLFilePath")+ "\n\n" + //
+            "(3) Exit program.\n");
     }
 
     private static Map<String, String> changeSettings(Map<String, String> settings) {
@@ -73,21 +89,6 @@ public class Sender {
         return settings;
     }
 
-    private static void displayMenu(Map<String, String> settings) {
-        System.out.println( 
-            "\nThe Sender program creates object(s) using Object Creation " + //
-            "Menu, serialize these\nobjects into a JDOM document, and send" + //
-            " this document to the Receiver program\nover a network.\n\n" + //
-            String.format("%-80s%n", "MAIN-MENU").replace(' ', '-') + //
-            "(1) Change Settings: \n\t" + //
-                "Recevier Program Server:\n\t\t" + //
-                    "hostname: " + settings.get("hostname") + "\n\t\t" + //
-                    "port: " + settings.get("port") + "\n\t" + //
-                "XML Filepath: " + settings.get("XMLFilePath")+ "\n" + //
-            "(2) Start\n"+ //
-            "(3) Exit program.");
-    }
-
     private static int getUserChoice() {
         System.out.print("Enter your choice: ");
         while (!scanner.hasNextInt()) {
@@ -100,7 +101,11 @@ public class Sender {
     
     private static List<Object> getSendObjects() {
         List<Object> objects = ObjectCreator.createObjects();
-        System.out.println("Select reference Id of object(s) to send or -1 to finish selection:");
+        if (objects.size() == 0)
+            return objects;
+
+        //System.out.println("Select reference Id of object(s) to send or -1 to finish selection:");
+        System.out.println("Select reference Id of object to send:");
         for (int i = 1; i <= objects.size(); i++) {
             System.out.println("\t" +i + ". " + objects.get(i - 1));
         }
@@ -108,20 +113,23 @@ public class Sender {
         List<Object> sendObjects = new ArrayList<>();
         while (true) {
             int id = getUserChoice();
-            if (id == -1)
-                break;
+            //if (id == -1)
+            //    break;
 
             if( id > objects.size() || id <= 0) 
-                System.out.println("Invalid reference Id");
-            else 
+                System.out.println("ERROR: Invalid reference Id");
+            else {
                 sendObjects.add(objects.get(id - 1));
+                break;
+            }
         }
+        
         return sendObjects;
     }
 
-    private static Document serialzeObjects(Object objects, String file) {
+    private static Document serialzeObjects(Object obj, String file) {
         System.out.println("Serializing objects...");
-        Document doc = new Serializer().serialize(objects);
+        Document doc = new Serializer().serialize(obj);
 
         try {
             XMLOutputter outputXML = new XMLOutputter();
@@ -140,23 +148,27 @@ public class Sender {
     }
     
     private static void sendObject(Document obj, String hostname, int port) {
-        try {
-            System.out.println("Connecting to Reciever program...");
-            Socket sock = new Socket(InetAddress.getByName(hostname), port);
-            ObjectOutputStream out = new ObjectOutputStream(sock.getOutputStream());
-            System.out.println("Sending serialized objects... ");
+        System.out.print("\nSend document? (y/n):");
+        String resp = scanner.next();
+        if (resp.contains("y")){
+            try {
+                System.out.println("Connecting to Reciever program...");
+                Socket sock = new Socket(InetAddress.getByName(hostname), port);
+                ObjectOutputStream out = new ObjectOutputStream(sock.getOutputStream());
+                System.out.println("Sending serialized objects... ");
 
-            out.writeObject(obj);
-            out.flush();
-            System.out.println("Sent.");  
+                out.writeObject(obj);
+                out.flush();
+                System.out.println("Sent.");  
 
-            sock.close();
-            System.out.println("Disconnected.");
+                sock.close();
+                System.out.println("Disconnected.");
 
-        } catch (ConnectException e) {
-            System.out.println("WARNING: Unable to make socket connection.");
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (ConnectException e) {
+                System.out.println("WARNING: Unable to make socket connection.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
